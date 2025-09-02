@@ -1,0 +1,1 @@
+# fichero_consumo_adaptado
