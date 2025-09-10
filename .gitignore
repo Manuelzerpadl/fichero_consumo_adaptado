@@ -209,3 +209,6 @@ __marimo__/
 *.csv
 *.xlsx
 *.xls
+
+payroll
+/payroll
