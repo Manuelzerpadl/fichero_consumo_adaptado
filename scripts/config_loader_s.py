@@ -3,7 +3,7 @@ from transformer.config_loader import load_config_excel
 
 
 def main() -> None:
-    config_file = "data/config/plantilla_empresa.xlsx"
+    config_file = "data/config/fhecor_config.xlsx"
 
     # Cargar configuración desde Excel
     config = load_config_excel(config_file)
