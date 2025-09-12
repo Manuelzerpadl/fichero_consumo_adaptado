@@ -6,7 +6,7 @@ from transformer.config_schema import ConfigSchema
 
 
 def main() -> None:
-    config_file = Path("data/config/plantilla_empresa.xlsx")
+    config_file = Path("data/config/fhecor_config.xlsx")
     json_file = config_file.with_suffix(".json")
 
     # 1) Cargar Excel
