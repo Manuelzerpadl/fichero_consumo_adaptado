@@ -1,5 +1,6 @@
 import logging
 from pathlib import Path
+from typing import List
 
 from utils.company_loader import load_company_ids
 from db.clickhouse_client import ClickHouseClient
@@ -11,15 +12,16 @@ logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
 )
 
-
-def main(base_dir: str = "data/input") -> None:
+def download_files(base_dir: str = "data/input") -> List[Path]:
     logging.info("Iniciando payroll downloader...")
+
+    downloaded_paths: List[Path] = []
 
     # 1) Cargar company_ids
     company_ids = load_company_ids()
     if not company_ids:
         logging.warning("No se encontraron company_ids en config/company_ids.json ni en .env")
-        return
+        return downloaded_paths
 
     logging.info(f"Company IDs cargados: {company_ids}")
 
@@ -29,7 +31,7 @@ def main(base_dir: str = "data/input") -> None:
 
     if documents_df.empty:
         logging.info("No se encontraron documentos de ajustes para descargar.")
-        return
+        return downloaded_paths
 
     logging.info(f"Se encontraron {len(documents_df)} documentos de ajustes.")
 
@@ -56,10 +58,16 @@ def main(base_dir: str = "data/input") -> None:
 
         if output_path:
             logging.info(f"Documento guardado en {output_path}")
+            downloaded_paths.append(Path(output_path))
         else:
             logging.error(f"Falló la descarga de {document_id} (company {company_id})")
 
     logging.info("Proceso completado.")
+    return downloaded_paths
+
+
+def main(base_dir: str = "data/input") -> None:
+    download_files(base_dir)
 
 
 if __name__ == "__main__":

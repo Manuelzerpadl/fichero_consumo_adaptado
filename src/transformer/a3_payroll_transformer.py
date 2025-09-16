@@ -26,6 +26,22 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
     # Normalizar cabeceras
     df_raw.columns = df_raw.columns.str.strip().str.lower()
 
+    # 🔹 Normalización global de columnas numéricas
+    for col in df_raw.columns:
+        if df_raw[col].dtype == "object":
+            cleaned = (
+                df_raw[col]
+                .astype(str)
+                .str.replace(".", "", regex=False)   # elimina separador de miles
+                .str.replace(",", ".", regex=False)  # convierte coma decimal a punto
+                .str.strip()
+            )
+            try:
+                df_raw[col] = pd.to_numeric(cleaned)
+            except Exception:
+                # si no se puede convertir, dejamos la columna como texto limpio
+                df_raw[col] = cleaned
+
     # 3) Aplicar mappings
     mappings = config["mappings"]
     df_out = pd.DataFrame()
@@ -46,9 +62,9 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
 
         # aplicar signo
         if signo == "positivo":
-            serie = serie.abs()
+            serie = pd.to_numeric(serie, errors="coerce").abs()
         elif signo == "negativo":
-            serie = -serie.abs()
+            serie = -pd.to_numeric(serie, errors="coerce").abs()
 
         destino = col_salida or col_orig
 
@@ -82,4 +98,3 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
             df_out[fecha_col] = date_value
 
     return df_out
-
