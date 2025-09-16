@@ -14,8 +14,14 @@ def load_config_excel(config_file: str) -> Dict[str, Any]:
         raise FileNotFoundError(f"No se encontró el archivo: {config_file}")
 
     # 1) Información básica
-    basic_df = pd.read_excel(path, sheet_name="2. Información Básica")
+    basic_df = pd.read_excel(path, sheet_name="2. Información Básica").fillna("")
     basic_info = dict(zip(basic_df["Campo"], basic_df["Valor"]))
+
+    # 🔎 Validar que incluya ID empresa
+    if "ID empresa" not in basic_info:
+        raise ValueError(
+            f"❌ El archivo {config_file} no contiene 'ID empresa' en la hoja '2. Información Básica'"
+        )
 
     # 2) Mapeo de columnas
     mappings_df = pd.read_excel(path, sheet_name="3. Columnas y Mapeo").fillna("")
@@ -39,7 +45,6 @@ def load_config_excel(config_file: str) -> Dict[str, Any]:
         "mappings": mappings,
         "output_config": output_config,
     }
-
 
 def export_config_to_json(config_file: str, json_file: str) -> None:
     """

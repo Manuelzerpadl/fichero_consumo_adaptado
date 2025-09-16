@@ -3,6 +3,7 @@ from pydantic import BaseModel, Field, validator
 
 
 class BasicInfo(BaseModel):
+    id_empresa: str = Field(..., alias="ID empresa")
     cif: str = Field(..., alias="CIF de la empresa")
     empresa: str = Field(..., alias="Nombre completo de la empresa")
     tipo_transformador: str = Field(..., alias="Tipo de transformador")

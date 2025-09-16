@@ -2,6 +2,7 @@ import json
 from pathlib import Path
 
 from transformer.config_loader import load_config_excel
+from utils.companies_registry import update_companies_registry
 from transformer.config_schema import ConfigSchema
 
 
@@ -15,15 +16,18 @@ def main() -> None:
     # 2) Exportar a JSON
     with open(json_file, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=2, ensure_ascii=False)
-
-    print(f"Configuración exportada a {json_file}")
+    print(f"✅ Configuración exportada a {json_file}")
 
     # 3) Validar JSON con Pydantic
     try:
         validated = ConfigSchema(**config)
-        print("Configuración validada correctamente con Pydantic")
+        print("✅ Configuración validada correctamente con Pydantic")
+
+        # 4) Actualizar el registry maestro de companies
+        update_companies_registry(json_file, config)
+
     except Exception as e:
-        print("Error de validación en la configuración:")
+        print("❌ Error de validación en la configuración:")
         print(e)
 
 
