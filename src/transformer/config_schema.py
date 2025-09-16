@@ -11,8 +11,7 @@ class BasicInfo(BaseModel):
 class Mapping(BaseModel):
     input_column: str = Field(..., alias="Columna del CSV Original")
     uso: str = Field(..., alias="Uso")
-    output_column: str = Field(..., alias="Nombre Final")
-    concepto: str = Field("", alias="Concepto Final")
+    output_column: str = Field(..., alias="Columna de Salida")
     operacion: str = Field("", alias="Operación")
     signo: str = Field("", alias="Signo")
     notas: str = Field("", alias="Notas")

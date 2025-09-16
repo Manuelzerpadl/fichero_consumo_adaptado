@@ -19,6 +19,15 @@ def load_config_excel(config_file: str) -> Dict[str, Any]:
 
     # 2) Mapeo de columnas
     mappings_df = pd.read_excel(path, sheet_name="3. Columnas y Mapeo").fillna("")
+
+    # Validación de columnas mínimas requeridas
+    required_cols = {"Columna del CSV Original", "Columna de Salida"}
+    missing = required_cols - set(mappings_df.columns)
+    if missing:
+        raise ValueError(
+            f"❌ Faltan columnas obligatorias en la hoja '3. Columnas y Mapeo': {missing}"
+        )
+
     mappings = mappings_df.to_dict(orient="records")
 
     # 3) Configuración de salida

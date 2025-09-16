@@ -6,7 +6,6 @@ from pathlib import Path
 from utils.date_utils import get_formatted_date
 
 
-
 def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
     """
     Transforma un fichero de nómina bruto en base a la configuración de la empresa (JSON).
@@ -33,13 +32,15 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
 
     for m in mappings:
         col_orig = m["Columna del CSV Original"].strip().lower()
-        nombre_final = m.get("Nombre Final", "").strip()
-        concepto_final = m.get("Concepto Final", "").strip()
+        col_salida = m.get("Columna de Salida", "").strip()
         operacion = m.get("Operación", "").strip().lower()
         signo = m.get("Signo", "").strip().lower()
 
         if col_orig not in df_raw.columns:
-            raise ValueError(f"Columna {col_orig} no existe en el input")
+            raise ValueError(
+                f"Columna '{col_orig}' no existe en el input. "
+                f"Columnas disponibles: {list(df_raw.columns)}"
+            )
 
         serie = df_raw[col_orig].copy()
 
@@ -49,8 +50,7 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
         elif signo == "negativo":
             serie = -serie.abs()
 
-        # decidir destino
-        destino = nombre_final or concepto_final or col_orig
+        destino = col_salida or col_orig
 
         # aplicar operación
         if operacion == "renombrar":
@@ -71,6 +71,15 @@ def transform_payroll(input_file: str, config_json: str) -> pd.DataFrame:
             output_cfg.get("FECHA - Formato", "DD/MM/YYYY"),
             output_cfg.get("FECHA - Valor personalizado", "")
         )
-        df_out[output_cfg.get("FECHA - Nombre columna", "Fecha")] = date_value
+
+        fecha_col = output_cfg.get("FECHA - Nombre columna", "Fecha")
+        fecha_pos = output_cfg.get("FECHA - Posición columna")
+
+        if fecha_pos:  # insertar en posición específica
+            pos = int(fecha_pos) - 1  # JSON usa 1-based, pandas usa 0-based
+            df_out.insert(pos, fecha_col, date_value)
+        else:  # añadir al final
+            df_out[fecha_col] = date_value
 
     return df_out
+

@@ -7,7 +7,7 @@ from transformer.exporter import export_with_config
 def main():
     # OJO: cambia estos paths por los tuyos reales
     input_file = "data/input/2025/09/2025-08-31T065203-ajustes-nomina-A78379518 (1).csv"
-    config_json = "C:/Users/Manuel Zerpa/Desktop/fichero_consumo_adaptado/data/config/fhecor_config.json"
+    config_json = "C:/Users/Manuel Zerpa/Desktop/fichero_consumo_adaptado/data/config/fhecor_config_v2.json"
     output_folder = Path("data/output")
 
     # 1) Cargar configuración
@@ -24,7 +24,7 @@ def main():
     # 4) Exportar Excel con formato definido en config
     export_with_config(df_out, config, output_file)
 
-    print(f"✅ Archivo transformado en: {output_file}")
+    print(f"Archivo transformado en: {output_file}")
 
 
 if __name__ == "__main__":
