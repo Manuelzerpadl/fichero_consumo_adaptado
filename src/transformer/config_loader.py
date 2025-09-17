@@ -23,6 +23,13 @@ def load_config_excel(config_file: str) -> Dict[str, Any]:
             f"❌ El archivo {config_file} no contiene 'ID empresa' en la hoja '2. Información Básica'"
         )
 
+    # 🔎 Normalizar correos (si existe)
+    if "Correos" in basic_info and basic_info["Correos"]:
+        correos = str(basic_info["Correos"]).split(";")
+        basic_info["Correos"] = [c.strip() for c in correos if c.strip()]
+    else:
+        basic_info["Correos"] = []
+
     # 2) Mapeo de columnas
     mappings_df = pd.read_excel(path, sheet_name="3. Columnas y Mapeo").fillna("")
 

@@ -7,7 +7,7 @@ from transformer.config_schema import ConfigSchema
 
 
 def main() -> None:
-    config_file = Path("data/config/blendhub_config_v2.xlsx")
+    config_file = Path("data/config/fhecor_config_v2.xlsx")
     json_file = config_file.with_suffix(".json")
 
     # 1) Cargar Excel

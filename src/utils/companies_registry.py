@@ -1,26 +1,45 @@
 from pathlib import Path
 import json
+from typing import Union
+from transformer.config_schema import BasicInfo
 
 
 def update_companies_registry(
     config_path: Path,
     config: dict,
-    registry_path: Path = Path("config/company_ids.json")
+    registry_path: Path = Path("config/company_ids.json"),
 ) -> None:
     """
-    Añade o actualiza la empresa en el JSON maestro de company_ids.json
+    Añade o actualiza la empresa en el JSON maestro de company_ids.json.
+    Soporta tanto dicts como objetos BasicInfo.
     """
-    basic_info = config.get("basic_info", {})
-    if not isinstance(basic_info, dict):
-        raise ValueError(f"❌ basic_info no es un dict válido en {config_path}")
+    basic_info: Union[dict, BasicInfo] = config.get("basic_info", {})
 
-    company_entry = {
-        "id": basic_info["ID empresa"],
-        "cif": basic_info["CIF de la empresa"],
-        "name": basic_info["Nombre completo de la empresa"],
-        "config_path": str(config_path),
-        "input_pattern": f"data/input/{basic_info['CIF de la empresa']}_*.csv",
-    }
+    # 🔎 Si viene como BasicInfo -> usar atributos pythonicos (ya normalizados)
+    if isinstance(basic_info, BasicInfo):
+        company_entry = {
+            "id": basic_info.id_empresa,
+            "cif": basic_info.cif,
+            "name": basic_info.empresa,
+            "config_path": str(config_path),
+            "input_pattern": f"data/input/{basic_info.cif}_*.csv",
+            "emails": basic_info.correos,  # ✅ ya es lista
+        }
+    elif isinstance(basic_info, dict):
+        # fallback si aún viene como dict sin normalizar
+        emails = basic_info.get("Correos", [])
+        if isinstance(emails, str):
+            emails = [e.strip() for e in emails.split(";") if e.strip()]
+        company_entry = {
+            "id": basic_info["ID empresa"],
+            "cif": basic_info["CIF de la empresa"],
+            "name": basic_info["Nombre completo de la empresa"],
+            "config_path": str(config_path),
+            "input_pattern": f"data/input/{basic_info['CIF de la empresa']}_*.csv",
+            "emails": emails,
+        }
+    else:
+        raise ValueError(f"❌ basic_info inválido en {config_path}")
 
     # 1) Crear el JSON si no existe
     if not registry_path.exists():
@@ -33,11 +52,11 @@ def update_companies_registry(
                 print(f"⚠️ {registry_path} corrupto, regenerando...")
                 registry = {"companies": []}
 
-    # 2) Asegurar que companies es una lista
+    # 2) Asegurar que companies es lista
     if not isinstance(registry.get("companies"), list):
         registry["companies"] = []
 
-    # 3) Actualizar si ya existe o añadir nuevo
+    # 3) Actualizar o añadir
     updated = False
     for c in registry["companies"]:
         if c.get("id") == company_entry["id"]:
@@ -48,7 +67,7 @@ def update_companies_registry(
     if not updated:
         registry["companies"].append(company_entry)
 
-    # 4) Guardar cambios
+    # 4) Guardar
     with open(registry_path, "w", encoding="utf-8") as f:
         json.dump(registry, f, indent=2, ensure_ascii=False)
 
