@@ -88,7 +88,7 @@ class RetoolClient:
 
             output_path.write_bytes(response.content)
 
-            logging.info(f"📄 Archivo descargado exitosamente: {output_path}")
+            logging.info(f"[FILE] Archivo descargado exitosamente: {output_path}")
             return str(output_path)
 
         except requests.RequestException as exc:

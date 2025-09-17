@@ -3,7 +3,7 @@ from src.transformer.a3_payroll_transformer import transform_payroll
 from src.transformer.exporter import export_with_config
 from src.utils.company_loader import load_company_configs, get_config_for_file
 from src.utils.sendgrid_utils import send_with_sendgrid
-from src.utils.logging_config import setup_logging
+from src.utils.loggin_config import setup_logging
 from config.settings import settings
 
 from pathlib import Path
@@ -48,7 +48,7 @@ def main():
 
         # 8) Exportar
         export_with_config(df_out, config, output_file)
-        logger.info(f"✅ Archivo transformado en: {output_file}")
+        logger.info(f"[OK] Archivo transformado en: {output_file}")
 
         # 9) Buscar correos y enviar
         company = next(c for c in companies if c["cif"] in str(input_file))
@@ -62,7 +62,7 @@ def main():
                 "email-subject": f"Nómina transformada - {company['name']} ({company['cif']}) - {now.strftime('%m/%Y')}"
             }
             send_with_sendgrid(emails, output_file, dynamic_data)
-            logger.info(f"📨 Archivo enviado a: {', '.join(emails)} usando plantilla {settings.TEMPLATE_ID_PAYROLLS}")
+            logger.info(f"[MAIL] Archivo enviado a: {', '.join(emails)} usando plantilla {settings.TEMPLATE_ID_PAYROLLS}")
         else:
             logger.warning(f"No se encontraron emails para CIF {company['cif']}")
 

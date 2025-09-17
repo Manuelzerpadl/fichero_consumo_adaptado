@@ -91,7 +91,7 @@ class ClickHouseClient:
                 query, parameters={"allowed_companies": company_ids}
             )
             df = pd.DataFrame(result.result_rows, columns=result.column_names)
-            logging.info(f"📊 Obtenidos {len(df)} registros de documentos ‘adjustment’")
+            logging.info(f"[STATS] Obtenidos {len(df)} registros de documentos ‘adjustment’")
             if df.empty:
                 logging.warning("La consulta devolvió 0 filas.")
             return df
