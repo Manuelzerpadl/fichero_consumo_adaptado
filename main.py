@@ -3,7 +3,7 @@ from src.transformer.a3_payroll_transformer import transform_payroll
 from src.transformer.exporter import export_with_config
 from src.utils.company_loader import load_company_configs, get_config_for_file
 from src.utils.sendgrid_utils import send_with_sendgrid
-from src.utils.loggin_config import setup_logging
+from src.utils.logging_config import setup_logging
 from config.settings import settings
 
 from pathlib import Path
@@ -16,6 +16,9 @@ def main():
 
     # 1) Cargar metadata empresas
     companies = load_company_configs()
+    if not companies:
+        logger.warning("No se encontraron empresas en config/company_ids.json")
+        return
     logger.info(f"Empresas cargadas: {len(companies)}")
 
     # 2) Descargar ficheros
